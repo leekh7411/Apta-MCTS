@@ -221,7 +221,19 @@ class Environment():
         y_pred_prob = self.model.predict_proba(x)[0][1]
         return y_pred_prob
     
+   
     
+def act8_aptamer_to_string(best_aptamer):
+    reordered_aptamer = ""
+    for apt in best_aptamer:
+        if apt in "acgu":
+            reordered_aptamer = reordered_aptamer + apt
+        elif apt in "ACGU":
+            reordered_aptamer = apt + reordered_aptamer
+        else:
+            continue
+    return reordered_aptamer.upper()
+
 class AptamerStates():
     def __init__(self, bp=27, letters=["A","C","G","U","a","c","g","u"], current_aptamer=""):
         self.n_letters = len(letters)
@@ -267,30 +279,14 @@ class AptamerStates():
     
     def get_reward(self):
         
-        reordered_aptamer = ""
-        for i in range(len(self.aptamer)):
-            apt = self.aptamer[i]
-            if apt.islower():
-                reordered_aptamer = reordered_aptamer + apt
-            else:
-                reordered_aptamer = apt + reordered_aptamer
-                
-        self.aptamer = reordered_aptamer.upper()
-        reward = ENV.get_reward(self.aptamer)
-        ss, mfe = RNA.fold(self.aptamer)
-        candidate_data = (reward, self.aptamer.upper(), ss, mfe)
+        reordered_aptamer = act8_aptamer_to_string(self.aptamer)                
+        #self.aptamer = reordered_aptamer.upper()
+        reward = ENV.get_reward(reordered_aptamer)
+        ss, mfe = RNA.fold(reordered_aptamer)
+        candidate_data = (reward, reordered_aptamer, ss, mfe)
         
         return reward, candidate_data
-    
-def act8_aptamer_to_string(best_aptamer):
-    reordered_aptamer = ""
-    for i in range(len(best_aptamer)):
-        apt = best_aptamer[i]
-        if apt.islower():
-            reordered_aptamer = reordered_aptamer + apt
-        else:
-            reordered_aptamer = apt + reordered_aptamer
-    return reordered_aptamer.upper()
+
 
 
 
@@ -343,11 +339,13 @@ class MCTSeq():
         f.write("> True Predict Proba : {}\n".format(pred[1]))
         f.write("> Predicted RNA-Aptamer Candidates\n")
         samples = list(sorted(candidates, key=lambda x: x[0]))
+        max_reward = samples[-1][0]
+        true_reward = pred[1]
         for i, (reward, aptamer, ss, mfe) in enumerate(reversed(samples)):
             if top_k > 0 and i == top_k: break
             f.write("{}\t{}\t{}\t{}\n".format(aptamer, ss, mfe, reward))
         f.close()
-        print("- process complete : {}".format(path))
+        print("- process complete : {} / reward : {} (original {})".format(path, max_reward, true_reward))
         
     def __save_candidates(self, path, candidates, target_data, top_k):
         pseq, px = target_data
@@ -361,18 +359,33 @@ class MCTSeq():
         f.write("> True Predict Proba : None\n")
         f.write("> Predicted RNA-Aptamer Candidates\n")
         samples = list(sorted(candidates, key=lambda x: x[0]))
+        max_reward = samples[-1][0]
         for i, (reward, aptamer, ss, mfe) in enumerate(reversed(samples)):
             if i == top_k: break
             f.write("{}\t{}\t{}\t{}\n".format(aptamer, ss, mfe, reward))
         f.close()
         print("- process complete : {}".format(path))
+        print("- process complete : {} / reward : {}".format(path, max_reward))
     
-    def sampling_with_truth(self, target_pseqs, target_rseqs, top_k, n_iter):
+    def __save_candidates_sequential(self, path, orig_cands):
+        f = open(path, "w")
+        for i, cands in enumerate(orig_cands):
+            N = i+1
+            f.write(">N-{}\n".format(N))
+            for reward, aptamer, ss, mfe in cands:
+                f.write("{}\t{}\t{}\t{}\n".format(aptamer, ss, mfe, reward))        
+        f.close()
+        print("- process complete : {}".format(path))
+                
+    def sampling_with_truth(self, target_pseqs, target_rseqs, top_k, n_iter, bp=0):
         global ENV
         # This method used for sampling test
         # We need true aptamer sequence pairs about target proteins
         # So, in this method you dont need to specify aptamer sequence length
         # aptamer's length will be matched about true aptamer sequence for testing
+        
+        #aptamer_letters = ["A","C","G","U"] # original ribonucleotide sequence bases
+        aptamer_letters = ["A","C","G","U", "a","c","g","u"] # directional ribonucleotide bases
         
         rx_list      = rna2feature_iCTF(target_rseqs)
         px_list      = pro2feature_iCTF(target_pseqs)
@@ -385,24 +398,34 @@ class MCTSeq():
             TRUE_RSEQ    = rseq
             TRUE_RSS, _  = RNA.fold(rseq)
             best_aptamer = ""
-            target_bp    = len(rseq)
+            if bp > 0:
+                target_bp = bp
+            else:
+                target_bp = len(rseq)
             cand_path    = "aptamers/{}/output-{:02d}.txt".format(self.tag, i)
+            orig_cand_path = "aptamers/{}/output-{:02d}-sequential.txt".format(self.tag, i)
             candidates   = []
-            
+            orig_candidates = []
             while len(best_aptamer) < target_bp:
                 CUR_RSEQ      = act8_aptamer_to_string(best_aptamer)
-                initial_state = AptamerStates(bp=target_bp, current_aptamer=best_aptamer)
+                initial_state = AptamerStates(bp              = target_bp,
+                                              current_aptamer = best_aptamer,
+                                              letters         = aptamer_letters)
+                
                 mcts          = MCTS(time_limit=None, iteration_limits=n_iter)
                 action        = mcts.search(initial_state=initial_state)
                 next_letter   = action.get_next_letter()
                 best_aptamer += next_letter
-                candidates   += mcts.get_candidates()
+                mcts_cands    = mcts.get_candidates()
+                orig_candidates.append(mcts_cands)
+                candidates   += mcts_cands
                 print(next_letter, end="")
             print("")
             _candidates = self.__redundancy_removal(candidates)
             target_data = (pseq, rseq, px, rx)
             print("- Total number of candidates : {} (original {})".format(len(_candidates), len(candidates)))
             self.__save_candidates_with_truth(cand_path, _candidates, target_data, top_k)
+            self.__save_candidates_sequential(orig_cand_path, orig_candidates)
             
     def sampling(self, target_pseqs, target_bp, top_k, n_iter):
         global ENV
@@ -431,4 +454,4 @@ class MCTSeq():
             target_data = (pseq, px)
             _candidates = self.__redundancy_removal(candidates)
             print("- Total number of candidates : {} (original {})".format(len(_candidates), len(candidates)))
-            self.__save_candidates(cand_path, candidates, target_data, top_k)
+            self.__save_candidates(cand_path, _candidates, target_data, top_k)
