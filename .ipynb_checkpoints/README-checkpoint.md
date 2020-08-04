@@ -1,7 +1,7 @@
 # **MCTS-seq**
 Supporting code for the paper **"Predicting aptamer sequences that interact with target proteins using an Aptamer-Protein Interaction classifier and a Monte-Carlo tree search approach"**(currently being prepared).
 
-## Scripts
+## **Generate Aptamers** 
 ### Train API classifier
 Implementations of how to train the Aptamer-Protein Interaction classifier using Random Forest are described in a `examples/classifier.ipynb`. The trained models are separated as A and B according to the dataset that trained. The benchmark datasets are available in the `__benchmark_dataset/` folder
 - API classifier benchmark dataset A from [Li et al, 2014](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0086729)
@@ -32,7 +32,8 @@ The candidate RNA aptamer sampling algorithm of [Lee and Han, 2019](https://ieee
         - ***n_jobs*** : number of process for multiprocessing (set `4 ~ 30`)
         - i.g. `python3 gen_rand_hue.py A 6000000 100 30` or `python3 gen_rand_hue.py B 6000000 10 30`
         
-        
+  
+## **Evaluate Aptamers**  
 ### 3D structure (.pdb format) prediction of RNA aptamers (optional)
 If you want to calculate docking score through ZDOCK or else, the candidate sequences that predicted need to convert to the pdb format structure file. We provide a simple script that predict 3D structure of RNA using **[SimRNA](https://genesilico.pl/SimRNAweb)** program (please install a standalone version). The script `gen_aptamer_structure.py` takes as **the tag of model** (check the tag here, `aptamer/[model_type]/output...`), **number of pairs** (number of .txt files in `aptamer/[model_type]/`) and **top-k** (pick the top k sequences in `aptamer/[model_type]/??.txt` file) value as inputs. 
 
