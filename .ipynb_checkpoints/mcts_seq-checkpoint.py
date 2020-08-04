@@ -425,7 +425,7 @@ class MCTSeq():
             target_data = (pseq, rseq, px, rx)
             print("- Total number of candidates : {} (original {})".format(len(_candidates), len(candidates)))
             self.__save_candidates_with_truth(cand_path, _candidates, target_data, top_k)
-            self.__save_candidates_sequential(orig_cand_path, orig_candidates)
+            #self.__save_candidates_sequential(orig_cand_path, orig_candidates)
             
     def sampling(self, target_pseqs, target_bp, top_k, n_iter):
         global ENV
