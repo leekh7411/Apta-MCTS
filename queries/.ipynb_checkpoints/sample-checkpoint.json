@@ -1,0 +1,87 @@
+{
+    "targets": {
+        "6GOF-Apta-MCTS": {
+            "model": {
+                "method": "Apta-MCTS",
+                "score_function": "classifiers/rf-ictf-li2014/mcc0.484-ppv1.000-acc0.822-sn0.290-sp1.000-npv0.809-yd0.290-77trees",
+                "k": 5,
+                "bp": 30,
+                "n_iter": 100
+            },
+            "protein": {
+                "name": "6GOF",
+                "seq": "STEYKLVVVGADGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHHYREQIKRVKDSEDVPMVLVGNKCDLPSRTVDTKQAQDLARSYGIPFIETSAKTRQGVDDAFYTLVREIRKHKEKMSK"
+            },
+            "aptamer": {
+                "name": [
+                    "V1",
+                    "V2"
+                ],
+                "seq": [
+                    "ATTGGGGAAGGCGAGGTTGGGGACGCGGGGCGCGTGGTGT",
+                    "TGGGGTGAGTGGGCGAGGGGTGAGGAGATGAAGGGCATGG"
+                ]
+            },
+            "candidate-aptamer": {
+                "score": [
+                    0.5064935064935064,
+                    0.5064935064935064,
+                    0.5064935064935064,
+                    0.5064935064935064,
+                    0.5064935064935064
+                ],
+                "seq": [
+                    "UUCUGUGUUAGCGAUGUUUUAUUUGAGGCA",
+                    "UUCUGUGUUAGCGAUGUUUUAUUUGAGGCU",
+                    "UCGUGUGUUAGCGAUGUUUUAUUUGAGGCA",
+                    "CUGUGUUAGCGAUGUUUUAUUUGAGGCGGU",
+                    "GGCUGUGUUAGCGAUGUUUUAUUUGAGGCU"
+                ],
+                "ss": [
+                    "..............((((((....))))))",
+                    "....((.((((...........)))).)).",
+                    "((((......))))((((((....))))))",
+                    "((((.((((...........)))).)))).",
+                    ".((((...))))...(((((....)))))."
+                ],
+                "mfe": [
+                    -1.5,
+                    -0.8999999761581421,
+                    -4.400000095367432,
+                    -3.799999952316284,
+                    -3.0
+                ]
+            }
+        },
+        "6GOF-Lee_and_Han_2019": {
+            "model": {
+                "method": "Lee_and_Han_2019",
+                "score_function": "classifiers/rf-ictf-li2014/mcc0.484-ppv1.000-acc0.822-sn0.290-sp1.000-npv0.809-yd0.290-77trees",
+                "k": 5,
+                "bp": 30,
+                "n_iter": 100
+            },
+            "protein": {
+                "name": "6GOF",
+                "seq": "STEYKLVVVGADGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHHYREQIKRVKDSEDVPMVLVGNKCDLPSRTVDTKQAQDLARSYGIPFIETSAKTRQGVDDAFYTLVREIRKHKEKMSK"
+            },
+            "aptamer": {
+                "name": [
+                    "V1",
+                    "V2"
+                ],
+                "seq": [
+                    "ATTGGGGAAGGCGAGGTTGGGGACGCGGGGCGCGTGGTGT",
+                    "TGGGGTGAGTGGGCGAGGGGTGAGGAGATGAAGGGCATGG"
+                ]
+            },
+            "candidate-aptamer": {
+                "score": [],
+                "seq": [],
+                "ss": [],
+                "mfe": []
+            }
+        }
+    },
+    "n_jobs": 10
+}

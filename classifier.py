@@ -1,8 +1,6 @@
 import os
+import fire
 import pickle
-#import matplotlib
-#matplotlib.use('Agg')
-#import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import interp
@@ -19,6 +17,8 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import confusion_matrix
 from collections import defaultdict
+from preprocess import load_json
+from preprocess import load_benchmark_dataset
 
 def binary_classifier_evaluation(TP,TN,FP,FN):
     # Sensitivity, hit rate, recall, or true positive rate
@@ -53,9 +53,10 @@ def binary_classifier_evaluation(TP,TN,FP,FN):
 
 
 class RandomForestModel():
-    def __init__(self, tag="rf", num_tree_range=range(35,200)):
+    def __init__(self, tag="rf", min_trees=35, max_trees=200, n_jobs=20):
         self.tag = tag
-        self.num_tree_range = num_tree_range
+        self.n_jobs = n_jobs
+        self.num_tree_range = range(min_trees, max_trees)
         self.model_save_path = "classifiers/{}".format(tag)
         if not os.path.exists(self.model_save_path):
             os.makedirs(self.model_save_path)
@@ -66,7 +67,7 @@ class RandomForestModel():
         num_trees = np.random.choice(self.num_tree_range)
         model = RandomForestClassifier(class_weight = "balanced",
                                        n_estimators = num_trees,
-                                       n_jobs       = 30,
+                                       n_jobs       = self.n_jobs,
                                        max_features = "sqrt")
         return model, num_trees
     
@@ -107,4 +108,36 @@ class RandomForestModel():
         return model_log_df, model_paths
     
     
-## TODO: argparse command line interface
+
+def main(dataset_dir, # ex. datasets/leeandhan2019 (benchmark dataset dir) 
+         tag,         # ex. rf-ictf-leeandhan2019 (model name)
+         min_trees,   # ex. 35  (minimum number of trees in Random Forest algorithm)
+         max_trees,   # ex. 200 (maximum number of trees in Random Forest algorithm)
+         n_jobs,      # ex. 10 (number of process for multiprocessing)
+         num_models   # ex. 1000 (number of models to select best one)
+        ):
+    
+    # Initialize (json format) dataset path
+    train_json_path = "{}/train.json".format(dataset_dir)
+    test_json_path  = "{}/test.json".format(dataset_dir)
+    
+    # Check files exsit
+    if not os.path.exists(train_json_path): 
+        raise ValueError("Dataset not exsits in, {}".format(train_json_path))
+    if not os.path.exists(test_json_path): 
+        raise ValueError("Dataset not exsits in, {}".format(test_json_path))
+        
+    # Parse sequences and preprocessing
+    trainset = load_benchmark_dataset(train_json_path)
+    testset  = load_benchmark_dataset(test_json_path)
+    dataset  = (trainset, testset)
+    
+    # Run
+    model = RandomForestModel(tag, min_trees, max_trees, n_jobs)
+    model.train(dataset, num_models)
+    
+    return
+    
+    
+if __name__ == "__main__":
+    fire.Fire(main)

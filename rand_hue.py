@@ -8,13 +8,9 @@ from preprocess import load_benchmark_dataset, rna2feature_iCTF, pro2feature_iCT
 from multiprocessing import Process, Manager
 
 class RandomHeuristicSampling():
-    def __init__(self, score_function_path, tag):
-        self.tag = tag
-        self.base_dir = "aptamers/{}".format(tag)
+    def __init__(self, score_function_path):
         self.sf_path = score_function_path # pre-trained rf-model path
         self.__load_score_function()
-        if not os.path.exists(self.base_dir):
-            os.makedirs(self.base_dir)
         
     def __load_score_function(self):
         self.score_function = joblib.load(self.sf_path)
@@ -27,9 +23,7 @@ class RandomHeuristicSampling():
         r_seqs = []
         r_ss  = []
         r_mfe = []
-
-        #print("")
-        #print("> Calculating secondary structure ...")
+        
         for i in range(n_samples):
 
             rseq = np.random.rand(bp, len(letters))
@@ -40,9 +34,6 @@ class RandomHeuristicSampling():
             ss, mfe = RNA.fold(seq)
             r_ss.append(ss)
             r_mfe.append(mfe)
-
-            #if i % 1000 == 0:
-                #print("- preprocessing {} / {}".format(i, n_samples))
 
         return r_seqs, r_ss, r_mfe
     
@@ -74,20 +65,16 @@ class RandomHeuristicSampling():
             if rule_01 and rule_02 and rule_03:
                 ret_ss_dict[ss].append(i)
 
-            #if i % 1000 == 0:
-            #    print("- filtering {} / {}".format(i, len(rand_seqs)))
-
-
         # Last rule filtering
         # - the number of same secondary structure in the pool should not exceed 150
         final_indices = []
         for ss_key, ss_list in ret_ss_dict.items():
-            if len(ss_list) < 150:
-                final_indices += ss_list
+            final_indices += ss_list
+        
         final_indices = np.array(final_indices)
-
+        
         print("> Finally selected {} items from {} items".format(len(final_indices), len(rand_seqs)))
-
+        
         return rand_seqs[final_indices], r_ss[final_indices], r_mfe[final_indices]
     
     def __batch_sampling(self, L, rseed):
@@ -97,10 +84,10 @@ class RandomHeuristicSampling():
         L.append((f_seqs, f_ss, f_mfe))
     
     def pre_sampling(self, n_samples, n_jobs, bp):
-        pre_sample_path = "aptamers/pre-samples-n{}-j{}-bp{}.txt".format(n_samples, n_jobs, bp)
+        pre_sample_path = "aptamers/pre-samples-n{}-bp{}.txt".format(n_samples, bp)
         self.pre_sample_path = pre_sample_path
-        self.n_samples = n_samples # number of samples
-        self.n_jobs = n_jobs # multiprocessing cores
+        self.n_samples       = n_samples # number of samples
+        self.n_jobs          = n_jobs # multiprocessing cores
         self.n_batch_samples = n_samples // n_jobs
         self.bp = bp
                 
@@ -165,40 +152,23 @@ class RandomHeuristicSampling():
         print("- Load pre-sampled sequences : {}".format(self.pre_sample_path))
         return np.array(seqs), np.array(sss), np.array(mfes)
     
-    def post_sampling(self, target_pseqs, target_rseqs, top_k):
+    def post_sampling(self, p_seq, top_k):
         cand_rseqs, cand_sss, cand_mfes = self.__load_candidates()
-        rx_list      = rna2feature_iCTF(target_rseqs)
-        px_list      = pro2feature_iCTF(target_pseqs)
+        
+        px = pro2feature_iCTF([p_seq])[0]
         cand_rx_list = rna2feature_iCTF(cand_rseqs)
         
-        for i, (pseq, rseq, px, rx) in enumerate(zip(target_pseqs, target_rseqs, px_list, rx_list)):
-            cand_path = "aptamers/{}/output-{:02d}.txt".format(self.tag, i)
-            f = open(cand_path, "w")
-            f.write("> Target Protein\n")
-            f.write("{}\n".format(pseq))
-            f.write("> RNA-Aptamer\n")
-            f.write("{}\n".format(rseq))
-            rss, rmfe = RNA.fold(rseq)
-            f.write("{}\n".format(rss))
-            f.write("{}\n".format(rmfe))
-            x = np.array([np.concatenate([px,rx],axis=-1)])
-            pred = self.score_function.predict_proba(x)[0]
-            f.write("> True Predict Proba : {}\n".format(pred[1]))
-            f.write("> Predicted RNA-Aptamer Candidates\n")
-                        
-            num_cands = len(cand_rx_list)
-            cand_px = np.array([px] * num_cands)
-            cand_rx = np.array(cand_rx_list)
-            cand_x  = np.concatenate([cand_px, cand_rx], axis=-1)
-            cand_pred = self.score_function.predict_proba(cand_x)[:,1]
-            cand_list = []
-            for seq, ss, mfe, pred in zip(cand_rseqs, cand_sss, cand_mfes, cand_pred):
-                cand_list.append((seq, ss, mfe, pred))
-            cand_list = list(sorted(cand_list, key=lambda x:x[3]))
-            
-            for j, (seq, ss, mfe, pred) in enumerate(reversed(cand_list)):
-                if j == top_k: break
-                f.write("{}\t{}\t{}\t{}\n".format(seq,ss,mfe,pred))
-            f.close()
-            print("- process complete : {}".format(cand_path))
+        num_cands = len(cand_rx_list)
+        cand_px = np.array([px] * num_cands)
+        cand_rx = np.array(cand_rx_list)
+        cand_x  = np.concatenate([cand_px, cand_rx], axis=-1)
         
+        cand_preds = self.score_function.predict_proba(cand_x)[:,1]
+        cand_list  = []
+        
+        for reward, seq, ss, mfe in zip(cand_preds, cand_rseqs, cand_sss, cand_mfes):
+            cand_list.append((reward, seq, ss, mfe))
+        cand_list = list(sorted(cand_list, key=lambda x:-x[0]))
+        cand_list = cand_list[:top_k]
+        
+        return cand_list

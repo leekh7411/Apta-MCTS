@@ -1,4 +1,7 @@
+import io
 import os
+import json
+import distutils.dir_util
 import numpy as np
 from copy import deepcopy
 from collections import defaultdict, OrderedDict
@@ -204,6 +207,24 @@ def pro2feature_iCTF(seq_list, k=3):
     
     return p_features
 
+def write_json(data, fname):
+    def _conv(o):
+        if isinstance(o, (np.int64, np.int32)):
+            return int(o)
+        raise TypeError
+
+    with io.open(fname, "w", encoding="utf-8") as f:
+        json_str = json.dumps(data, ensure_ascii=False, default=_conv)
+        f.write(json_str)
+
+
+def load_json(fname):
+    with open(fname, encoding="utf-8") as f:
+        json_obj = json.load(f)
+
+    return json_obj
+
+
 def preprocess_class(labels):
     _labels = []
     for label in labels:
@@ -214,10 +235,16 @@ def preprocess_class(labels):
     return np.array(_labels)
 
 def load_benchmark_dataset(path):
-    df = pd.read_csv(path)
-    pseqs  = list(df["protein"])
-    rseqs  = list(df["rna"])
-    labels = list(df["class"])
+    #df = pd.read_csv(path)
+    #pseqs  = list(df["protein"])
+    #rseqs  = list(df["rna"])
+    #labels = list(df["class"])
+    
+    d = load_json(path)
+    pseqs  = d["protein-seq"]
+    rseqs  = d["rna-aptamer-seq"]
+    labels = d["label"]
+    
     px = pro2feature_iCTF(pseqs, k=3)
     rx = rna2feature_iCTF(rseqs, k=4)
     labels = preprocess_class(labels)
@@ -229,12 +256,17 @@ def load_benchmark_dataset(path):
     return px, rx, labels
 
 def load_docking_benchmark_dataset(path):
-    df = pd.read_csv(path)
-    pseqs  = list(df["protein"])
-    rseqs  = list(df["rna"])
+    #df = pd.read_csv(path)
+    #pseqs  = list(df["protein"])
+    #rseqs  = list(df["rna"])
+    
+    d = load_json(path)
+    pseqs = d["protein-seq"]
+    rseqs = d["rna-aptamer-seq"]
     px = pro2feature_iCTF(pseqs, k=3)
     rx = rna2feature_iCTF(rseqs, k=4)
     print("> Benchmark        : {}".format(path.split('/')[-1]))
     print("- protein features : {}".format(px.shape))
     print("- rna features     : {}".format(rx.shape))
-    return pseqs, rseqs, px, rx, df
+    return pseqs, rseqs, px, rx
+
