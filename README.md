@@ -1,7 +1,8 @@
 # Apta-MCTS 
+![](https://github.com/leekh7411/Apta-MCTS/blob/master/figs/overview.png?raw=true)
 Supporting code for the paper **"Predicting aptamer sequences that interact with target proteins using Aptamer-Protein Interaction classifiers and a Monte-Carlo tree search approach"**(currently being prepared).
 
-## Aptamer-Protein-Interaction (API) classifiers
+## **(A)** Aptamer-Protein-Interaction (API) classifiers
 Implementations of how to train the Aptamer-Protein Interaction classifier using Random Forest are described in a `classifier.py`. We train two versions of API classifiers according to the datasets. The benchmark datasets are available in the `datasets/` folder with json format files.
 #### *List of benchmark dataset*
 | Source | Positives | Negatives | Description |
