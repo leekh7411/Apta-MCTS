@@ -66,33 +66,34 @@ Almost finished, next job is just construct other empty template as below,
 ```json
 {
     "targets": {
-        "<experiment_name>":{
+        "6GOF-Apta-MCTS": {
             "model": {
-                "method" : "Lee_and_Han_2019|Apta-MCTS",
-                "score_function" : "<path of the weights of the pre-trained API classifer>",
-                "k"      : "<number of top scored candidates>",
-                "bp"     : "<length of candidate RNA-aptamer sequences>",
-                "n_iter" : "<number of iterations for each base when method is Apta-MCTS>"
+                "method"        : "Apta-MCTS",
+                "score_function": "classifiers/rf-ictf-li2014/mcc0.484-ppv1.000-acc0.822-sn0.290-sp1.000-npv0.809-yd0.290-77trees",
+                "k"             : 5,
+                "bp"            : 30,
+                "n_iter"        : 100
             },
             "protein": {
-                "seq" : "<target protein sequence>"
+                "name": "6GOF",
+                "seq": "STEYKLVVVGADGVGKSALTIQLIQNHFVDEYDPTIEDSYRKQVVIDGETCLLDILDTAGQEEYSAMRDQYMRTGEGFLCVFAINNTKSFEDIHHYREQIKRVKDSEDVPMVLVGNKCDLPSRTVDTKQAQDLARSYGIPFIETSAKTRQGVDDAFYTLVREIRKHKEKMSK"
             },
             "aptamer": {
-                "name"      : [],
-                "seq"       : []
+                "name": [],
+                "seq" : []
             },
             "candidate-aptamer": {
-                "score"    : [],
-                "seq"      : [],
-                "ss"       : [],
-                "mfe"      : []
+                "score": [],
+                "seq"  : [],
+                "ss"   : [],
+                "mfe"  : []
             }
         }
     },
-    "n_jobs" : "<number of available cores for the multiprocessing tasks>"
+    "n_jobs" : 10
 }
 ```
-The parameter `experiment_name` is an identifier of the task, if you want multiple tasks then initialize mutiple experiment templates as a single file and write the available number of processes in `n_jobs`, this script support the multiprocessing of tasks through default python multiprocessing library. 
+The parameter `experiment_name`(in here, `6GOF-Apta-MCTS`) is an identifier of the task. You don't need to fill the information of `aptamer`(not used) and `candidate-aptamer`(outputs) fields. If you want multiple tasks then initialize mutiple experiment templates as a single file and write the available number of processes in `n_jobs`, this script support the multiprocessing of tasks through default python multiprocessing library. 
 
 After finished the tasks, the candidates of each task are saved in the `candidate-aptamer` field like this,
 ```json
