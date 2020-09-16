@@ -1,7 +1,6 @@
 import io
 import os
 import json
-import distutils.dir_util
 import numpy as np
 from copy import deepcopy
 from collections import defaultdict, OrderedDict

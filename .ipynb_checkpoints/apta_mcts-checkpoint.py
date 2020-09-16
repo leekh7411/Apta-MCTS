@@ -11,6 +11,7 @@ from collections import defaultdict
 import RNA
 from preprocess import *
 ENV = None
+
 class treeNode():
     def __init__(self, state, parent):
         self.state = state
