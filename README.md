@@ -3,7 +3,7 @@
 Supporting code for the paper **"Predicting aptamer sequences that interact with target proteins using Aptamer-Protein Interaction classifiers and a Monte-Carlo tree search approach"**(currently being prepared).
 
 ## Requirements
-Recent versions of numpy, scipy, sklearn, and pandas are required. Additionally, you need to install the [ViennaRNA packages](https://github.com/ViennaRNA/ViennaRNA) for predicting RNA secondary structures (Please check the `import RNA` is possible in your environment).
+Recent versions of numpy, scipy, sklearn, and pandas are required. Additionally, you need to install the [ViennaRNA packages](https://github.com/ViennaRNA/ViennaRNA) for predicting RNA secondary structures ***(Please check if you can `import RNA` in your python script)***.
 
 ## **(A)** Aptamer-Protein-Interaction (API) classifiers
 Implementations of how to train the Aptamer-Protein Interaction classifier using Random Forest are described in a `classifier.py`. We train two versions of API classifiers according to the datasets. The benchmark datasets are available in the `datasets/` folder with json format files.
