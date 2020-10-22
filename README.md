@@ -46,7 +46,7 @@ The candidate aptamer sequence generation model Apta-MCTS takes the **target pro
 #### *How to generate candidate aptamers for a target protein*
 Apta-MCTS simply takes the configuration json file as an input for generation.
 ```sh
-python3 generator.py -q=queries/sample.json
+python3 generator.py generate -q=queries/sample.json
 ```
 How to write the configuration file? First, you need a target protein name and sequence. Specify the target protein information `name` and `seq` as below,
 ```json
