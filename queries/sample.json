@@ -51,6 +51,22 @@
                     -2.4000000953674316,
                     -3.0
                 ]
+            },
+            "protein-specificity":{
+                "name": [
+                    "3V79_1",
+                    "5VOE_H",
+                    "3SN6_4",
+                    "2RH1",
+                    "1ERK"
+                ],
+                "seq": [
+                    "GMDVNVRGPDGFTPLMIASCSGGGLETGNS...",
+                    "IVGGQECKDGECPWQALLINEENEGFCGGT...",
+                    "DYKDDDDAENLYFQGNIFEMLRIDEGLRLK...",
+                    "DYKDDDAMGQPGNGSAFLLAPNRSHAPDHD...",
+                    "HHHHHHMAAAAAAGPEMVRGQVFDVGPRYT..."
+                ]
             }
         },
         "6GOF-Lee_and_Han_2019": {
@@ -103,6 +119,22 @@
                     -10.300000190734863,
                     -7.199999809265137,
                     -7.199999809265137
+                ]
+            },
+            "protein-specificity":{
+                "name": [
+                    "3V79_1",
+                    "5VOE_H",
+                    "3SN6_4",
+                    "2RH1",
+                    "1ERK"
+                ],
+                "seq": [
+                    "GMDVNVRGPDGFTPLMIASCSGGGLETGNS...",
+                    "IVGGQECKDGECPWQALLINEENEGFCGGT...",
+                    "DYKDDDDAENLYFQGNIFEMLRIDEGLRLK...",
+                    "DYKDDDAMGQPGNGSAFLLAPNRSHAPDHD...",
+                    "HHHHHHMAAAAAAGPEMVRGQVFDVGPRYT..."
                 ]
             }
         }

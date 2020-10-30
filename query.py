@@ -114,3 +114,9 @@ class QueryManager():
         return scores, seqs, sss, mfes
     
     
+    def get_protein_specificity_info(self, target_name):
+        protein_specificity = self.d["targets"][target_name]["protein-specificity"]
+        ps_names = protein_specificity["name"]
+        ps_seqs  = protein_specificity["seq"]
+        return ps_names, ps_seqs
+        

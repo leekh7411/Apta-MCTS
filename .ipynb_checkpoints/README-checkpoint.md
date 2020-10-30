@@ -3,7 +3,9 @@
 Supporting code for the paper **"Predicting aptamer sequences that interact with target proteins using Aptamer-Protein Interaction classifiers and a Monte-Carlo tree search approach"**(currently being prepared).
 
 ## Requirements
-Recent versions of numpy, scipy, sklearn, and pandas are required. Additionally, you need to install the [ViennaRNA packages](https://github.com/ViennaRNA/ViennaRNA) for predicting RNA secondary structures.
+- Test environment : Ubuntu 16.04 server
+- Recent versions of numpy, scipy, sklearn, and pandas are required. 
+- Additionally, you need to install the [ViennaRNA packages](https://github.com/ViennaRNA/ViennaRNA) for predicting RNA secondary structures ***(Please check if you can `import RNA` in your python script)***.
 
 ## **(A)** Aptamer-Protein-Interaction (API) classifiers
 Implementations of how to train the Aptamer-Protein Interaction classifier using Random Forest are described in a `classifier.py`. We train two versions of API classifiers according to the datasets. The benchmark datasets are available in the `datasets/` folder with json format files.
@@ -44,7 +46,7 @@ The candidate aptamer sequence generation model Apta-MCTS takes the **target pro
 #### *How to generate candidate aptamers for a target protein*
 Apta-MCTS simply takes the configuration json file as an input for generation.
 ```sh
-python3 generator.py -q=queries/sample.json
+python3 generator.py generate -q=queries/sample.json
 ```
 How to write the configuration file? First, you need a target protein name and sequence. Specify the target protein information `name` and `seq` as below,
 ```json
@@ -90,13 +92,17 @@ Almost finished, next job is just construct other empty template as below,
                 "seq"  : [],
                 "ss"   : [],
                 "mfe"  : []
+            },
+            "protein-specificity": {
+                "name" : [],
+                "seq"  : []
             }
         }
     },
     "n_jobs" : 10
 }
 ```
-The parameter `experiment_name`(in here, `6GOF-Apta-MCTS`) is an identifier of the task. You don't need to fill the information of `aptamer`(not used) and `candidate-aptamer`(outputs) fields. If you want multiple tasks then initialize mutiple experiment templates as a single file and write the available number of processes in `n_jobs`, this script support the multiprocessing of tasks through default python multiprocessing library. 
+The parameter `experiment_name`(in here, `6GOF-Apta-MCTS`) is an identifier of the task. You don't need to fill the information of `aptamer`(not used) and `candidate-aptamer`(outputs) fields. The `protein-specificity` section is updated. If there exist any proteins that do not want to bind, please fill this section with the protein names and sequences. If you want multiple tasks then initialize mutiple experiment templates as a single file and write the available number of processes in `n_jobs`, this script support the multiprocessing of tasks through default python multiprocessing library. 
 
 After finished the tasks, the candidates of each task are saved in the `candidate-aptamer` field like this,
 ```json

@@ -175,7 +175,11 @@ class Environment():
             
     def init_target_protein(self, seq):
         self.target_p_seq = seq
-        self.encoder_p(seq)
+        self.px = self.encoder_p(seq)
+    
+    def init_spe_proteins(self, seqs):
+        self.spe_p_seqs = seqs
+        self.spe_px_list = [self.encoder_p(seq) for seq in seqs]
         
     def encoder_p(self, seq):
         seq_len = len(seq)
@@ -198,7 +202,8 @@ class Environment():
                     continue
         pf = np.array(list(pf_dict.values()))
         pf = pf / seq_len
-        self.px = pf
+        return pf
+        
         
     
     def encoder_r(self, seq):
@@ -218,9 +223,19 @@ class Environment():
     
     def get_reward(self, aptamer_sequence):
         rx = self.encoder_r(aptamer_sequence)
-        x  = np.array([list(self.px) + list(rx)])
-        y_pred_prob = self.model.predict_proba(x)[0][1]
-        return y_pred_prob
+        rx = list(rx)
+        x  = np.array([list(self.px) + rx])
+        spe_x = []
+        for spe_px in self.spe_px_list:
+            spe_x.append(list(spe_px) + rx)
+        if len(spe_x) > 0:
+            spe_x = np.array(spe_x)
+            y_pred_prob = self.model.predict_proba(x)[0][1]
+            y_pred_prob_spe = self.model.predict_proba(spe_x)[:, 1]
+            return y_pred_prob, y_pred_prob_spe
+        else:
+            y_pred_prob = self.model.predict_proba(x)[0][1]
+            return y_pred_prob, 0
     
    
     
@@ -279,14 +294,20 @@ class AptamerStates():
             return False
     
     def get_reward(self):
-        
         reordered_aptamer = act8_aptamer_to_string(self.aptamer)                
         #self.aptamer = reordered_aptamer.upper()
-        reward = ENV.get_reward(reordered_aptamer)
+        reward, spe_rewards = ENV.get_reward(reordered_aptamer)
         ss, mfe = RNA.fold(reordered_aptamer)
         candidate_data = (reward, reordered_aptamer, ss, mfe)
         
-        return reward, candidate_data
+        # apply specificity rewards to the target bind reward
+        #print(reward, spe_rewards, spe_rewards.shape)
+        specificity_coef = 1.0
+        
+        total_reward = reward - np.mean(spe_rewards) * specificity_coef
+        #print(total_reward, reward, spe_rewards, spe_rewards.shape)
+        
+        return total_reward, candidate_data
 
 
 
@@ -321,11 +342,13 @@ class Apta_MCTS():
         
         return _candidates
                 
-    def sampling(self, target_pseq, target_bp, top_k, n_iter):
+    def sampling(self, target_pseq, target_bp, top_k, n_iter, p_spes):
         global ENV
+        ps_names, ps_seqs = p_spes
         aptamer_letters = ["A","C","G","U", "a","c","g","u"] # directional ribonucleotide bases
         ENV = Environment(self.score_function)               # global parameter (as a score function) initialization
         ENV.init_target_protein(target_pseq)
+        ENV.init_spe_proteins(ps_seqs)
         best_aptamer = ""
         candidates   = []
         

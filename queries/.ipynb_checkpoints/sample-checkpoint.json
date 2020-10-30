@@ -24,32 +24,48 @@
             },
             "candidate-aptamer": {
                 "score": [
-                    0.5064935064935064,
-                    0.5064935064935064,
-                    0.5064935064935064,
-                    0.5064935064935064,
-                    0.5064935064935064
+                    0.4675324675324675,
+                    0.45454545454545453,
+                    0.45454545454545453,
+                    0.45454545454545453,
+                    0.45454545454545453
                 ],
                 "seq": [
-                    "UUCUGUGUUAGCGAUGUUUUAUUUGAGGCA",
-                    "UUCUGUGUUAGCGAUGUUUUAUUUGAGGCU",
-                    "UCGUGUGUUAGCGAUGUUUUAUUUGAGGCA",
-                    "CUGUGUUAGCGAUGUUUUAUUUGAGGCGGU",
-                    "GGCUGUGUUAGCGAUGUUUUAUUUGAGGCU"
+                    "GUUAGACGUGGACGAACCUAGGGUGUAGAA",
+                    "AAGACGUGGACGAACCUAGGGUGUAGCAAC",
+                    "AAAGACGUGGACGAACCUAGGGUGUAGCAG",
+                    "GCAAGACGUGGACGAACCUAGGGUGUAGAG",
+                    "GAAGACGUGGACGAACCUAGGGUGUAGCAC"
                 ],
                 "ss": [
-                    "..............((((((....))))))",
-                    "....((.((((...........)))).)).",
-                    "((((......))))((((((....))))))",
-                    "((((.((((...........)))).)))).",
-                    ".((((...))))...(((((....)))))."
+                    ".(((.((.(((......)))..)).)))..",
+                    "....(.(((......))).)..........",
+                    ".....(.(((......))).).........",
+                    "(((...(.(((......))).).)))....",
+                    "......(((.....(((...)))....)))"
                 ],
                 "mfe": [
-                    -1.5,
-                    -0.8999999761581421,
-                    -4.400000095367432,
-                    -3.799999952316284,
+                    -2.4000000953674316,
+                    -2.200000047683716,
+                    -2.200000047683716,
+                    -2.4000000953674316,
                     -3.0
+                ]
+            },
+            "protein-specificity":{
+                "name": [
+                    "3V79_1",
+                    "5VOE_H",
+                    "3SN6_4",
+                    "2RH1",
+                    "1ERK"
+                ],
+                "seq": [
+                    "GMDVNVRGPDGFTPLMIASCSGGGLETGNS...",
+                    "IVGGQECKDGECPWQALLINEENEGFCGGT...",
+                    "DYKDDDDAENLYFQGNIFEMLRIDEGLRLK...",
+                    "DYKDDDAMGQPGNGSAFLLAPNRSHAPDHD...",
+                    "HHHHHHMAAAAAAGPEMVRGQVFDVGPRYT..."
                 ]
             }
         },
@@ -76,10 +92,50 @@
                 ]
             },
             "candidate-aptamer": {
-                "score": [],
-                "seq": [],
-                "ss": [],
-                "mfe": []
+                "score": [
+                    0.45454545454545453,
+                    0.42857142857142855,
+                    0.42857142857142855,
+                    0.42857142857142855,
+                    0.4155844155844156
+                ],
+                "seq": [
+                    "GUUAUUGGGGCGUUAGAGCCCAGAGCC",
+                    "CGUUAGUGCGAGAAGCAGUUUCUGACA",
+                    "GGCGAUACCCUCGUAAUUGGGGUUUGC",
+                    "AGCUGUACCAUCUGGGGUGGGUUGGGC",
+                    "ACCAUCUGUUUGUGUUGCGACGAUGGG"
+                ],
+                "ss": [
+                    "(((....((((......))))..))).",
+                    ".((((((((.....)))....))))).",
+                    ".((((..(((........)))..))))",
+                    ".(((...(((((...)))))....)))",
+                    ".(((((.(((........))))))))."
+                ],
+                "mfe": [
+                    -8.5,
+                    -6.099999904632568,
+                    -10.300000190734863,
+                    -7.199999809265137,
+                    -7.199999809265137
+                ]
+            },
+            "protein-specificity":{
+                "name": [
+                    "3V79_1",
+                    "5VOE_H",
+                    "3SN6_4",
+                    "2RH1",
+                    "1ERK"
+                ],
+                "seq": [
+                    "GMDVNVRGPDGFTPLMIASCSGGGLETGNS...",
+                    "IVGGQECKDGECPWQALLINEENEGFCGGT...",
+                    "DYKDDDDAENLYFQGNIFEMLRIDEGLRLK...",
+                    "DYKDDDAMGQPGNGSAFLLAPNRSHAPDHD...",
+                    "HHHHHHMAAAAAAGPEMVRGQVFDVGPRYT..."
+                ]
             }
         }
     },

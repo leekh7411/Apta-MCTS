@@ -27,7 +27,7 @@ class QueryMaker():
             json_obj = json.load(f)
         return json_obj
         
-    def generate(self, q, t, method, bp, score_function, k, n_iter, n_jobs):
+    def generate(self, q, t, method, bp, score_function, k, n_iter, n_jobs, bp_same_with_aptamer=False):
         # This method updated for calculating binding-affinity and specificity with other proteins
         # the comparative proteins that used for binding specificity are not chosen proteins all
         inp_target_file = t
@@ -70,31 +70,56 @@ class QueryMaker():
         
         p_dict = {pname: vals["sequence"] for pname, vals in inp_target_json.items()}
         for m in method:
-            for target_bp in bp:
-                for target_score_function in score_function:
-                    for pname, vals in inp_target_json.items():
-                        q_name = "{}+{}+{}+{}bp".format(pname, m, target_score_function, target_bp)
-                        aptamers = vals["aptamer"]
-                        pseq = vals["sequence"]
-                        aptamer_names = aptamers["name"]
-                        aptamer_seqs = aptamers["sequence"]
-                        
-                        out_query["targets"][q_name]["model"]["method"] = m
-                        out_query["targets"][q_name]["model"]["score_function"] = sf_dict[target_score_function]
-                        out_query["targets"][q_name]["model"]["k"] = k
-                        out_query["targets"][q_name]["model"]["bp"] = target_bp
-                        out_query["targets"][q_name]["model"]["n_iter"] = n_iter
-                        out_query["targets"][q_name]["protein"]["name"] = pname
-                        out_query["targets"][q_name]["protein"]["seq"] = pseq
-                        out_query["targets"][q_name]["aptamer"]["name"] = aptamer_names
-                        out_query["targets"][q_name]["aptamer"]["seq"] = aptamer_seqs
-                        
-                        for spname, spseq in p_dict.items():
-                            if spname == pname: continue
-                            out_query["targets"][q_name]["protein-specificity"]["name"].append(spname)
-                            out_query["targets"][q_name]["protein-specificity"]["seq"].append(spseq)
-                        
-                        print("--- query {} saved".format(q_name))
+            
+            for target_score_function in score_function:
+                for pname, vals in inp_target_json.items():
+                    
+                    aptamers = vals["aptamer"]
+                    pseq = vals["sequence"]
+                    aptamer_names = aptamers["name"]
+                    aptamer_seqs = aptamers["sequence"]
+                    aptamer_lens = [len(s) for s in aptamer_seqs]
+                    aptamer_lens = list(set(aptamer_lens))
+
+                    if bp_same_with_aptamer:
+                        for aptamer_bp in aptamer_lens:
+                            q_name = "{}+{}+{}+{}bp".format(pname, m, target_score_function, aptamer_bp)
+                            out_query["targets"][q_name]["model"]["method"] = m
+                            out_query["targets"][q_name]["model"]["score_function"] = sf_dict[target_score_function]
+                            out_query["targets"][q_name]["model"]["k"] = k
+                            out_query["targets"][q_name]["model"]["bp"] = aptamer_bp
+                            out_query["targets"][q_name]["model"]["n_iter"] = n_iter
+                            out_query["targets"][q_name]["protein"]["name"] = pname
+                            out_query["targets"][q_name]["protein"]["seq"] = pseq
+                            out_query["targets"][q_name]["aptamer"]["name"] = aptamer_names
+                            out_query["targets"][q_name]["aptamer"]["seq"] = aptamer_seqs
+
+                            for spname, spseq in p_dict.items():
+                                if spname == pname: continue
+                                out_query["targets"][q_name]["protein-specificity"]["name"].append(spname)
+                                out_query["targets"][q_name]["protein-specificity"]["seq"].append(spseq)
+
+                            print("--- query {} saved".format(q_name))
+
+                    else:
+                        for target_bp in bp:
+                            q_name = "{}+{}+{}+{}bp".format(pname, m, target_score_function, target_bp)
+                            out_query["targets"][q_name]["model"]["method"] = m
+                            out_query["targets"][q_name]["model"]["score_function"] = sf_dict[target_score_function]
+                            out_query["targets"][q_name]["model"]["k"] = k
+                            out_query["targets"][q_name]["model"]["bp"] = target_bp
+                            out_query["targets"][q_name]["model"]["n_iter"] = n_iter
+                            out_query["targets"][q_name]["protein"]["name"] = pname
+                            out_query["targets"][q_name]["protein"]["seq"] = pseq
+                            out_query["targets"][q_name]["aptamer"]["name"] = aptamer_names
+                            out_query["targets"][q_name]["aptamer"]["seq"] = aptamer_seqs
+
+                            for spname, spseq in p_dict.items():
+                                if spname == pname: continue
+                                out_query["targets"][q_name]["protein-specificity"]["name"].append(spname)
+                                out_query["targets"][q_name]["protein-specificity"]["seq"].append(spseq)
+
+                            print("--- query {} saved".format(q_name))
                         
         # save query
         self.write_json(out_query, out_query_file)
@@ -104,11 +129,13 @@ class QueryMaker():
 if __name__ == "__main__":
     os.system("clear")
     qm = QueryMaker()
-    qm.generate(q              = "queries/v2-test-our-collections.json", 
-                t              = "targets/target_proteins_collected_ours.json", 
-                method         = ["Apta-MCTS"],
-                bp             = [30, 50, 70, 90], 
-                score_function = ["li2014","lee2019"], 
-                k              = 10, 
-                n_iter         = 5000, 
-                n_jobs         = 30)
+    qm.generate(q                    = "queries/v2-test-our-collections.json", 
+                t                    = "targets/target_proteins_collected_ours.json", 
+                method               = ["Apta-MCTS"],
+                bp                   = [30, 50, 70, 90], 
+                score_function       = ["li2014","lee2019"], 
+                k                    = 10, 
+                n_iter               = 2000, 
+                n_jobs               = 30, 
+                bp_same_with_aptamer = True)
+    

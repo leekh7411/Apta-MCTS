@@ -20,6 +20,10 @@
                 "seq"      : [],
                 "ss"       : [],
                 "mfe"      : []
+            },
+            "protein-specificity": {
+                "name" : "<list of name of proteins that do not want to bind>",
+                "seq"  : "<list of sequence of proteins that do not want to bind>"
             }
         }
     },

@@ -92,13 +92,17 @@ Almost finished, next job is just construct other empty template as below,
                 "seq"  : [],
                 "ss"   : [],
                 "mfe"  : []
+            },
+            "protein-specificity": {
+                "name" : [],
+                "seq"  : []
             }
         }
     },
     "n_jobs" : 10
 }
 ```
-The parameter `experiment_name`(in here, `6GOF-Apta-MCTS`) is an identifier of the task. You don't need to fill the information of `aptamer`(not used) and `candidate-aptamer`(outputs) fields. If you want multiple tasks then initialize mutiple experiment templates as a single file and write the available number of processes in `n_jobs`, this script support the multiprocessing of tasks through default python multiprocessing library. 
+The parameter `experiment_name`(in here, `6GOF-Apta-MCTS`) is an identifier of the task. You don't need to fill the information of `aptamer`(not used) and `candidate-aptamer`(outputs) fields. The `protein-specificity` section is updated. If there exist any proteins that do not want to bind, please fill this section with the protein names and sequences. If you want multiple tasks then initialize mutiple experiment templates as a single file and write the available number of processes in `n_jobs`, this script support the multiprocessing of tasks through default python multiprocessing library. 
 
 After finished the tasks, the candidates of each task are saved in the `candidate-aptamer` field like this,
 ```json
