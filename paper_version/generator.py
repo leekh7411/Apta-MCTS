@@ -10,14 +10,17 @@ from query import QueryManager
 from apta_mcts import Apta_MCTS
 from rand_hue import RandomHeuristicSampling
 
+
 def print_string_multilines(x, s):
     chunks, chunk_size = len(x), s
     for i in range(0, chunks, chunk_size):
         print(x[i:i+chunk_size])
-    
+
+
 def get_clf_path():
     return ""
-    
+
+
 class Generator():
     def __init__(self, q):
         self.qm           = QueryManager(q)
@@ -45,7 +48,7 @@ class Generator():
                     
                 L = manager.list()
                 processes = []    
-                for t_name, model_info, p_info, ps_info in zip(t_names, model_infos, p_infos, ps_infos):
+                for t_name, model_info, p_info, ps_info      in zip(t_names, model_infos, p_infos, ps_infos):
                     method, score_function, top_k, bp, n_iter = model_info
                     p_name, p_seq = p_info
                     ps_names, ps_seqs = ps_info
@@ -80,12 +83,9 @@ class Generator():
                     self.qm.set_candidate_info(t_name, candidates)
                 self.qm.update_and_reload()
                 
-                
     def apta_mcts(self, L, t_name, p_seq, score_function, bp, k, n_iter, ps_names, ps_seqs):
         G = Apta_MCTS(score_function)
-        
         #candidate_aptamers = G.sampling(p_seq, bp, k, n_iter) # debugging
-        
         # updated - considering binding specificity
         p_spes = (ps_names, ps_seqs)
         candidate_aptamers = G.sampling(p_seq, bp, k, n_iter, p_spes) # debugging
@@ -101,6 +101,7 @@ class Generator():
         candidate_aptamers = G.post_sampling(p_seq, k)
         # self.qm.set_candidate_info(t_name, candidate_aptamers)
         L.append((t_name, candidate_aptamers))
-        
+
+
 if __name__ == "__main__":
     fire.Fire(Generator)
