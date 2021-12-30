@@ -164,6 +164,8 @@ class Environment:
         self.p_iCTF = improvedCTF(letters=["A", "B", "C", "D", "E", "F", "G"], length=self.p_mer)
         self.r_iCTF = improvedCTF(letters=["A", "C", "G", "U"], length=self.r_mer)
         self.reduced_p_dict = get_reduced_protein_letter_defaultdict()
+        self.fwd_seq = None
+        self.bwd_seq = None
 
     def init_target_protein(self, seq):
         self.target_p_seq = seq
@@ -172,6 +174,12 @@ class Environment:
     def init_spe_proteins(self, seqs):
         self.spe_p_seqs = seqs
         self.spe_px_list = [self.encoder_p(seq) for seq in seqs]
+
+    def set_forward_sequence(self, fwd_seq):
+        self.fwd_seq = fwd_seq
+
+    def set_backward_sequence(self, bwd_seq):
+        self.bwd_seq = bwd_seq
 
     def encoder_p(self, seq):
         seq_len = len(seq)
@@ -212,20 +220,29 @@ class Environment:
         return rf
 
     def get_reward(self, aptamer_sequence):
+
+        if self.fwd_seq is not None:
+            aptamer_sequence = self.fwd_seq + aptamer_sequence
+
+        if self.bwd_seq is not None:
+            aptamer_sequence = aptamer_sequence + self.bwd_seq
+
         rx = self.encoder_r(aptamer_sequence)
         rx = list(rx)
         x = np.array([list(self.px) + rx])
+
         spe_x = []
         for spe_px in self.spe_px_list:
             spe_x.append(list(spe_px) + rx)
+
         if len(spe_x) > 0:
             spe_x = np.array(spe_x)
             y_pred_prob = self.model.predict_proba(x)[0][1]
             y_pred_prob_spe = self.model.predict_proba(spe_x)[:, 1]
-            return y_pred_prob, y_pred_prob_spe
+            return y_pred_prob, y_pred_prob_spe, aptamer_sequence
         else:
             y_pred_prob = self.model.predict_proba(x)[0][1]
-            return y_pred_prob, 0
+            return y_pred_prob, 0, aptamer_sequence
 
 
 def act8_aptamer_to_string(best_aptamer):
@@ -285,9 +302,9 @@ class AptamerStates:
     def get_reward(self):
         reordered_aptamer = act8_aptamer_to_string(self.aptamer)
         # self.aptamer = reordered_aptamer.upper()
-        reward, spe_rewards = ENV.get_reward(reordered_aptamer)
-        ss, mfe = RNA.fold(reordered_aptamer)
-        candidate_data = (reward, reordered_aptamer, ss, mfe)
+        reward, spe_rewards, full_aptamer = ENV.get_reward(reordered_aptamer)
+        ss, mfe = RNA.fold(full_aptamer)
+        candidate_data = (reward, full_aptamer, ss, mfe)
 
         # apply specificity rewards to the target bind reward
         # print(reward, spe_rewards, spe_rewards.shape)
@@ -329,13 +346,20 @@ class AptaMCTS:
 
         return _candidates
 
-    def sampling(self, target_pseq, target_bp, top_k, n_iter, p_spes):
+    def sampling(self, target_pseq, target_bp, top_k, n_iter, p_spes, fwd_seq, bwd_seq):
         global ENV
         ps_names, ps_seqs = p_spes
         aptamer_letters = ["A", "C", "G", "U", "a", "c", "g", "u"]  # directional ribonucleotide bases
         ENV = Environment(self.score_function)  # global parameter (as a score function) initialization
         ENV.init_target_protein(target_pseq)
         ENV.init_spe_proteins(ps_seqs)
+
+        if fwd_seq is not None:
+            ENV.set_forward_sequence(fwd_seq)
+
+        if bwd_seq is not None:
+            ENV.set_backward_sequence(bwd_seq)
+
         best_aptamer = ""
         candidates = []
 

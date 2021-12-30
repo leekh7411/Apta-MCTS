@@ -8,7 +8,7 @@
 
 ## How to use?
 ```text
-usage: apta_mcts.py [-h] -i INPUT_PROTEIN [-k TOP_K] [-bp BP_SIZE] [-n NUM_ITERATIONS] -s SCORE_FUNCTION [-e EX_PROTEIN] [-o OUTPUT_DIR]
+usage: apta_mcts.py [-h] -i INPUT_PROTEIN [-k TOP_K] [-bp BP_SIZE] [-n NUM_ITERATIONS] -s SCORE_FUNCTION [-e EX_PROTEIN] [-o OUTPUT_DIR] [-fwd FORWARD_SEQUENCE] [-bwd BACKWARD_SEQUENCE]
 
 options:
   -h, --help            show this help message and exit
@@ -26,6 +26,11 @@ options:
                         The protein sequences (.fa or .fasta) file path do not want to interact with candidate aptamers in sampling process
   -o OUTPUT_DIR, --output-dir OUTPUT_DIR
                         Directory to save result .csv file
+  -fwd FORWARD_SEQUENCE, --forward-sequence FORWARD_SEQUENCE
+                        A sequence that concatenated in forward of candidate sequence
+  -bwd BACKWARD_SEQUENCE, --backward-sequence BACKWARD_SEQUENCE
+                        A sequence that concatenated in backward of candidate sequence
+
 ```
 ## Example
 ```bash
@@ -34,10 +39,12 @@ python apta_mcts.py \
 -i 'examples/rcsb_pdb_6GOF.fasta' \
 -k 100 \
 -bp 10 \
--n 1000 \
+-n 100 \
 -s 'score_functions/rf-ictf-li2014/mcc0.484-ppv1.000-acc0.822-sn0.290-sp1.000-npv0.809-yd0.290-35trees' \
 -e 'examples/rcsb_pdb_7JTL.fasta' \
--o './examples'
+-o './examples' \
+-fwd 'AACCGGTT' \
+-bwd 'TTGGCCAA'
 ```
 
 ## Output (.csv)
