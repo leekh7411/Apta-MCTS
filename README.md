@@ -4,7 +4,7 @@
     - Random Forest based Aptamer-Protein Interaction Classifier
   - **Search method** 
     - Monte-Carlo Tree Search for Nucleotide Sequence
-  - Note that our method is an activation maximization framework that composed with a score function and search method, so the components can be replaced others
+  - Note that our method is an activation maximization framework that composed score function and search method, so these components can be replaced any modules
 
 ## How to use?
 ```text
@@ -41,7 +41,7 @@ python apta_mcts.py \
 ```
 
 ## Output (.csv)
-- Candidate results will be saved for each protein sequence in the input `.fa` file.
+- Candidate results will be saved for each protein sequence in the input `.fa` file
 ```text
 aptamer_protein_interaction_score,primary_sequence,secondary_structure,minimum_free_energy
 0.5428571428571428,ACUGCUACCAGUACGACAACGCCAGGUUUG,((((....))))..................,-1.7000000476837158
@@ -67,4 +67,19 @@ make install
 # If you have import error when `import RNA`
 # copy the installed python site-packages to your python site-packages dir
 cp -r /<any>/<path>/lib/<your-python-ver>/site-packages/RNA /<your>/<python-site-packages>/
+```
+
+## Citation
+If you apply this library or model to any project and research, please cite our article:
+```text
+@article{lee2021predicting,
+  title={Predicting aptamer sequences that interact with target proteins using an aptamer-protein interaction classifier and a Monte Carlo tree search approach},
+  author={Lee, Gwangho and Jang, Gun Hyuk and Kang, Ho Young and Song, Giltae},
+  journal={PloS one},
+  volume={16},
+  number={6},
+  pages={e0253760},
+  year={2021},
+  publisher={Public Library of Science San Francisco, CA USA}
+}
 ```
