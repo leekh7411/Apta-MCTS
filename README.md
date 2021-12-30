@@ -4,7 +4,7 @@
     - Random Forest based Aptamer-Protein Interaction Classifier
   - **Search method** 
     - Monte-Carlo Tree Search for Nucleotide Sequence
-  - Note that our method is an activation maximization framework that composed score function and search method, so these components can be replaced any modules
+  - *Note that our method is an activation maximization framework that composed score function and search method, so these components can be replaced any modules*
 
 ## How to use?
 ```text
