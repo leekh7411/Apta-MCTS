@@ -6,11 +6,12 @@ import operator
 import numpy as np
 from functools import reduce
 from copy import deepcopy
-from sklearn.externals import joblib
+import joblib
 from collections import defaultdict
 import RNA
 from preprocess import *
 ENV = None
+
 
 class treeNode():
     def __init__(self, state, parent):
@@ -21,7 +22,8 @@ class treeNode():
         self.num_visits = 0
         self.total_reward = 0
         self.children = {}
-        
+
+
 def random_policy(state):
     while not state.is_terminal():
         try:
@@ -32,7 +34,7 @@ def random_policy(state):
     return state.get_reward()
 
 
-class MCTS():
+class MCTS:
     def __init__(self, time_limit=None, iteration_limits=None,
                  exploration_constant=1/math.sqrt(2), rollout_policy=random_policy):
         
@@ -76,8 +78,7 @@ class MCTS():
                 
         best_child = self.get_best_child(self.root, 0)
         return self.get_action(self.root, best_child)
-    
-    
+
     def execute_round(self):
         
         # selection
@@ -89,8 +90,7 @@ class MCTS():
         
         # backpropagation
         self.backpropagation(node, reward)
-        
-    
+
     def select_node(self, node):
         while not node.is_terminal:
             if node.is_fully_expanded:
@@ -98,8 +98,7 @@ class MCTS():
             else:
                 return self.expand(node)
         return node
-    
-    
+
     def expand(self, node):
         actions = node.state.get_possible_actions()
         for action in actions:
@@ -112,15 +111,13 @@ class MCTS():
                     node.is_fully_expanded = True
                 return new_node
         raise Exception("Non reachable error")
-    
-    
+
     def backpropagation(self, node, reward):
         while node is not None:
             node.num_visits += 1
             node.total_reward += reward
             node = node.parent
-    
-    
+
     def get_best_child(self, node, exploration_value):
         best_value = float("-inf")
         best_nodes = []
@@ -136,14 +133,14 @@ class MCTS():
                 best_nodes.append(child)
         
         return random.choice(best_nodes)
-    
-    
+
     def get_action(self, root, best_child):
         for action, node in root.children.items():
             if node is best_child:
                 return action
-            
-class Action():
+
+
+class Action:
     def __init__(self, cur_bp, next_letter):
         self.cur_bp = cur_bp
         self.next_letter = next_letter
@@ -164,7 +161,7 @@ class Action():
         return hash((self.cur_bp, self.next_letter))
 
     
-class Environment():
+class Environment:
     def __init__(self, model):
         self.model = model # scikit-learn random forest classifier
         self.p_mer = 3
@@ -203,9 +200,7 @@ class Environment():
         pf = np.array(list(pf_dict.values()))
         pf = pf / seq_len
         return pf
-        
-        
-    
+
     def encoder_r(self, seq):
         seq_len = len(seq)
         rf_dict = self.r_iCTF.get_feature_dict()
@@ -237,8 +232,7 @@ class Environment():
             y_pred_prob = self.model.predict_proba(x)[0][1]
             return y_pred_prob, 0
     
-   
-    
+
 def act8_aptamer_to_string(best_aptamer):
     reordered_aptamer = ""
     for apt in best_aptamer:
@@ -250,14 +244,14 @@ def act8_aptamer_to_string(best_aptamer):
             continue
     return reordered_aptamer.upper()
 
-class AptamerStates():
+
+class AptamerStates:
     def __init__(self, bp=27, letters=["A","C","G","U","a","c","g","u"], current_aptamer=""):
         self.n_letters = len(letters)
         self.bp = bp
         self.aptamer = current_aptamer
         self.actions = letters
-        
-        
+
     def get_possible_actions(self):
         """ 
         State is sequene of the Aptamer
@@ -310,9 +304,7 @@ class AptamerStates():
         return total_reward, candidate_data
 
 
-
-
-class Apta_MCTS():
+class Apta_MCTS:
     def __init__(self, score_function_path):
         self.sf_path = score_function_path # pre-trained rf-model path
         self.__load_score_function()
