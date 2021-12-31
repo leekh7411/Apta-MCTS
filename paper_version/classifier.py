@@ -1,24 +1,13 @@
 import os
 import fire
-import pickle
 import numpy as np
 import pandas as pd
-from scipy import interp
-from sklearn.externals import joblib
-from sklearn.preprocessing import normalize
-from sklearn import metrics
+import joblib
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import cross_val_score, train_test_split
-from sklearn.metrics import classification_report
-from sklearn.metrics import roc_curve, auc
-from sklearn.metrics import auc
-from sklearn.metrics import plot_roc_curve
-from sklearn.model_selection import StratifiedKFold
-from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import confusion_matrix
 from collections import defaultdict
-from preprocess import load_json
 from preprocess import load_benchmark_dataset
+
 
 def binary_classifier_evaluation(TP,TN,FP,FN):
     # Sensitivity, hit rate, recall, or true positive rate
@@ -106,8 +95,7 @@ class RandomForestModel():
         model_log_df = pd.DataFrame.from_dict(model_log_dict)
         model_log_df.to_csv(model_logs)
         return model_log_df, model_paths
-    
-    
+
 
 def main(dataset_dir, # ex. datasets/leeandhan2019 (benchmark dataset dir) 
          tag,         # ex. rf-ictf-leeandhan2019 (model name)
