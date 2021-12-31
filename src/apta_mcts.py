@@ -10,8 +10,8 @@ def candidates_to_csv(candidates, path):
     """
 
     Args:
-        candidates:
-        path:
+        candidates (list): Sampled top-k candidate results
+        path: Result file path
 
     Returns:
 
@@ -41,18 +41,18 @@ def aptamer_monte_carlo_tree_search(inp_protein_fa,
         based on the API-classifier scores
 
     Args:
-        inp_protein_fa:
-        ex_protein_fa:
-        top_k:
-        bp:
-        num_iterations:
-        score_function_path:
-        forward_sequence:
-        backward_sequence:
-        output_dir:
+        inp_protein_fa (str): Input target protein sequences .fasta format file to be interacted
+        ex_protein_fa (str): Exclusive protein sequences .fasta format file
+        top_k (int): Number of candidate aptamer results for each output .csv file
+        bp (int): Length of candidate aptamer sequence except forward and backward subsequences
+        num_iterations (int): Number of iterations for each Monte-Carlo Tree Search step
+        score_function_path (str): Pre-trained Aptamer-Protein Interaction classifier path
+        forward_sequence (str): Forward subsequence for candidate sequences
+        backward_sequence (str): Backward subsequence for candidate sequences
+        output_dir (str): Directory to save sampled candidate results
 
     Returns:
-
+        None
     """
     generator = AptaMCTS(score_function_path)
     protein_names, protein_sequences = read_fa_file(inp_protein_fa)
